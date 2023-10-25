@@ -6,38 +6,29 @@
 pragma solidity 0.8.19;
 
 contract FundMe {
-    
-    address private s_owner;
-  
+    address public owner;
 
     constructor() {
-        s_owner = msg.sender;
+        owner = msg.sender;
     }
 
     modifier onlyOwner() {
-       if(msg.sender != s_owner) {
-        revert("not owner!!");
-       }
+        if (msg.sender != owner) {
+            revert("not owner!!");
+        }
         _;
     }
-    function fund() public payable  {
-    }
 
-    function withdraw(uint _amount) public onlyOwner() {
-        if(_amount > address(this).balance) {
-            revert("insufficient funds");
-        }
-        (bool sent,) = payable(msg.sender).call{value: _amount}("");
-        if(!sent){
+    receive() external payable {}
+
+    function withdraw(uint256 _amount) public onlyOwner {
+        (bool sent, ) = payable(msg.sender).call{value: _amount}("");
+        if (!sent) {
             revert("failed transfer");
         }
-    }   
+    }
 
     function balance() public view returns (uint256) {
         return address(this).balance;
-    }  
-
-    function getOwner() public view  returns(address) {
-        return s_owner;
     }
 }
